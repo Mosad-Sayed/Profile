@@ -451,9 +451,32 @@
             bgImage.src = 'profile 1 (frame.png';
 
             let profileImage = new Image();
-            let profilePos = { x: 270, y: 200, radius: 80 };
-            let namePos = { x: 270, y: 320 };
-            let idPos = { x: 270, y: 380 };
+
+            // تخزين المواضع كنسب مئوية من عرض وارتفاع Canvas
+            let positions = {
+                profile: { xPercent: 0.5, yPercent: 0.173, radiusPercent: 0.15 }, // تقريباً 270/540, 200/1154, 80/540
+                name: { xPercent: 0.5, yPercent: 0.277 }, // تقريباً 270/540, 320/1154
+                id: { xPercent: 0.5, yPercent: 0.329 } // تقريباً 270/540, 380/1154
+            };
+
+            // دالة لتحويل النسب المئوية إلى مواقع فعلية
+            function getActualPositions() {
+                return {
+                    profile: {
+                        x: positions.profile.xPercent * canvas.width,
+                        y: positions.profile.yPercent * canvas.height,
+                        radius: positions.profile.radiusPercent * canvas.width
+                    },
+                    name: {
+                        x: positions.name.xPercent * canvas.width,
+                        y: positions.name.yPercent * canvas.height
+                    },
+                    id: {
+                        x: positions.id.xPercent * canvas.width,
+                        y: positions.id.yPercent * canvas.height
+                    }
+                };
+            }
 
             let dragging = false;
             let dragTarget = null;
@@ -461,6 +484,8 @@
 
             // دالة لرسم العناصر على Canvas
             function drawCanvas() {
+                const actualPos = getActualPositions();
+
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 // رسم الخلفية
@@ -470,17 +495,20 @@
                 if (profileImage.src && profileImage.complete) {
                     ctx.save();
                     ctx.beginPath();
-                    ctx.arc(profilePos.x, profilePos.y, profilePos.radius, 0, Math.PI * 2);
+                    ctx.arc(actualPos.profile.x, actualPos.profile.y, actualPos.profile.radius, 0, Math.PI * 2);
                     ctx.closePath();
                     ctx.clip();
-                    ctx.drawImage(profileImage, profilePos.x - profilePos.radius, profilePos.y - profilePos.radius,
-                        profilePos.radius * 2, profilePos.radius * 2);
+                    ctx.drawImage(profileImage,
+                        actualPos.profile.x - actualPos.profile.radius,
+                        actualPos.profile.y - actualPos.profile.radius,
+                        actualPos.profile.radius * 2,
+                        actualPos.profile.radius * 2);
                     ctx.restore();
 
                     // إضافة ظل للصورة
                     ctx.save();
                     ctx.beginPath();
-                    ctx.arc(profilePos.x, profilePos.y, profilePos.radius + 2, 0, Math.PI * 2);
+                    ctx.arc(actualPos.profile.x, actualPos.profile.y, actualPos.profile.radius + 2, 0, Math.PI * 2);
                     ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
                     ctx.shadowBlur = 10;
                     ctx.shadowOffsetY = 5;
@@ -493,7 +521,7 @@
                 const name = document.getElementById('nameInput').value;
                 if (name) {
                     ctx.fillStyle = '#2b2d42';
-                    ctx.font = 'bold 28px Tajawal';
+                    ctx.font = 'bold ' + (canvas.width * 0.052) + 'px Tajawal'; // 28px بالنسبة لـ 540px
                     ctx.textAlign = 'center';
 
                     // إضافة ظل للنص
@@ -501,7 +529,7 @@
                     ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
                     ctx.shadowBlur = 4;
                     ctx.shadowOffsetY = 3;
-                    ctx.fillText(name, namePos.x, namePos.y);
+                    ctx.fillText(name, actualPos.name.x, actualPos.name.y);
                     ctx.restore();
                 }
 
@@ -509,7 +537,7 @@
                 const id = document.getElementById('idInput').value;
                 if (id) {
                     ctx.fillStyle = '#2b2d42';
-                    ctx.font = '24px Tajawal';
+                    ctx.font = (canvas.width * 0.044) + 'px Tajawal'; // 24px بالنسبة لـ 540px
                     ctx.textAlign = 'center';
 
                     // إضافة ظل للنص
@@ -517,7 +545,7 @@
                     ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
                     ctx.shadowBlur = 3;
                     ctx.shadowOffsetY = 2;
-                    ctx.fillText("ID: " + id, idPos.x, idPos.y);
+                    ctx.fillText("ID: " + id, actualPos.id.x, actualPos.id.y);
                     ctx.restore();
                 }
             }
@@ -526,6 +554,8 @@
             bgImage.onload = function () {
                 // تعديل حجم Canvas ليناسب حجم الصورة مع الحفاظ على النسبة
                 const aspectRatio = bgImage.height / bgImage.width;
+                const canvasWrapper = document.getElementById('canvasWrapper');
+                canvas.width = canvasWrapper.offsetWidth;
                 canvas.height = canvas.width * aspectRatio;
                 drawCanvas();
 
@@ -544,14 +574,8 @@
                     reader.onload = function (evt) {
                         profileImage.src = evt.target.result;
                         profileImage.onload = function () {
-                            // ضبط حجم الصورة الشخصية بناءً على حجم Canvas
-                            profilePos.radius = canvas.width * 0.15;
                             drawCanvas();
-
-                            // إخفاء مؤشر التحميل
                             loadingIndicator.classList.remove('active');
-
-                            // عرض رسالة نجاح
                             showToast('تم تحميل الصورة بنجاح', 'success');
                         };
                         profileImage.onerror = function () {
@@ -574,7 +598,6 @@
                     return;
                 }
 
-                // عرض مؤشر التحميل
                 const originalText = downloadBtn.innerHTML;
                 downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
                 downloadBtn.disabled = true;
@@ -586,11 +609,8 @@
                     link.href = canvas.toDataURL('image/png');
                     link.click();
 
-                    // استعادة حالة الزر
                     downloadBtn.innerHTML = originalText;
                     downloadBtn.disabled = false;
-
-                    // عرض رسالة نجاح
                     showToast('تم تحميل الملف بنجاح', 'success');
                 }, 500);
             });
@@ -603,13 +623,15 @@
                 const mouseX = (e.clientX - rect.left) * scaleX;
                 const mouseY = (e.clientY - rect.top) * scaleY;
 
+                const actualPos = getActualPositions();
+
                 // التحقق من النقر على الصورة الشخصية
-                const dx = mouseX - profilePos.x;
-                const dy = mouseY - profilePos.y;
-                if (dx * dx + dy * dy < profilePos.radius * profilePos.radius) {
+                const dx = mouseX - actualPos.profile.x;
+                const dy = mouseY - actualPos.profile.y;
+                if (dx * dx + dy * dy < actualPos.profile.radius * actualPos.profile.radius) {
                     dragging = true;
                     dragTarget = 'profile';
-                    originalPos = { ...profilePos };
+                    originalPos = { ...positions.profile };
                     canvas.style.cursor = 'grabbing';
                     return;
                 }
@@ -617,15 +639,15 @@
                 // التحقق من النقر على الاسم
                 const name = document.getElementById('nameInput').value;
                 if (name) {
-                    ctx.font = 'bold 28px Tajawal';
+                    ctx.font = 'bold ' + (canvas.width * 0.052) + 'px Tajawal';
                     const metrics = ctx.measureText(name);
-                    const textHeight = 30; // تقدير ارتفاع النص
+                    const textHeight = canvas.height * 0.026; // تقريباً 30px بالنسبة لـ 1154px
 
-                    if (Math.abs(mouseX - namePos.x) < metrics.width / 2 &&
-                        Math.abs(mouseY - namePos.y) < textHeight / 2) {
+                    if (Math.abs(mouseX - actualPos.name.x) < metrics.width / 2 &&
+                        Math.abs(mouseY - actualPos.name.y) < textHeight / 2) {
                         dragging = true;
                         dragTarget = 'name';
-                        originalPos = { ...namePos };
+                        originalPos = { ...positions.name };
                         canvas.style.cursor = 'grabbing';
                         return;
                     }
@@ -634,16 +656,16 @@
                 // التحقق من النقر على رقم ID
                 const id = document.getElementById('idInput').value;
                 if (id) {
-                    ctx.font = '24px Tajawal';
+                    ctx.font = (canvas.width * 0.044) + 'px Tajawal';
                     const idText = "ID: " + id;
                     const metrics = ctx.measureText(idText);
-                    const textHeight = 25; // تقدير ارتفاع النص
+                    const textHeight = canvas.height * 0.022; // تقريباً 25px بالنسبة لـ 1154px
 
-                    if (Math.abs(mouseX - idPos.x) < metrics.width / 2 &&
-                        Math.abs(mouseY - idPos.y) < textHeight / 2) {
+                    if (Math.abs(mouseX - actualPos.id.x) < metrics.width / 2 &&
+                        Math.abs(mouseY - actualPos.id.y) < textHeight / 2) {
                         dragging = true;
                         dragTarget = 'id';
-                        originalPos = { ...idPos };
+                        originalPos = { ...positions.id };
                         canvas.style.cursor = 'grabbing';
                         return;
                     }
@@ -655,7 +677,6 @@
                     dragging = false;
                     canvas.style.cursor = '';
 
-                    // إظهار رسالة تأكيد الحركة
                     if (dragTarget === 'profile') {
                         showToast('تم تغيير موقع الصورة', 'info');
                     } else if (dragTarget === 'name') {
@@ -670,11 +691,11 @@
                 if (dragging) {
                     // إعادة العنصر إلى موقعه الأصلي إذا تم سحبه خارج Canvas
                     if (dragTarget === 'profile') {
-                        profilePos = { ...originalPos };
+                        positions.profile = { ...originalPos };
                     } else if (dragTarget === 'name') {
-                        namePos = { ...originalPos };
+                        positions.name = { ...originalPos };
                     } else if (dragTarget === 'id') {
-                        idPos = { ...originalPos };
+                        positions.id = { ...originalPos };
                     }
                     drawCanvas();
                     dragging = false;
@@ -692,14 +713,14 @@
                 const y = (e.clientY - rect.top) * scaleY;
 
                 if (dragTarget === 'profile') {
-                    profilePos.x = x;
-                    profilePos.y = y;
+                    positions.profile.xPercent = x / canvas.width;
+                    positions.profile.yPercent = y / canvas.height;
                 } else if (dragTarget === 'name') {
-                    namePos.x = x;
-                    namePos.y = y;
+                    positions.name.xPercent = x / canvas.width;
+                    positions.name.yPercent = y / canvas.height;
                 } else if (dragTarget === 'id') {
-                    idPos.x = x;
-                    idPos.y = y;
+                    positions.id.xPercent = x / canvas.width;
+                    positions.id.yPercent = y / canvas.height;
                 }
                 drawCanvas();
             });
@@ -711,13 +732,6 @@
                     const aspectRatio = bgImage.height / bgImage.width;
                     canvas.width = canvasWrapper.offsetWidth;
                     canvas.height = canvas.width * aspectRatio;
-
-                    // ضبط أحجام العناصر بناءً على الحجم الجديد
-                    profilePos.radius = canvas.width * 0.15;
-                    profilePos.x = canvas.width / 2;
-                    namePos.x = canvas.width / 2;
-                    idPos.x = canvas.width / 2;
-
                     drawCanvas();
                 }
             }
@@ -726,7 +740,6 @@
 
             // دالة لعرض الرسائل التنبيهية
             function showToast(message, type) {
-                // إزالة أي رسائل سابقة
                 const oldToast = document.querySelector('.toast-message');
                 if (oldToast) oldToast.remove();
 
@@ -741,12 +754,10 @@
 
                 document.body.appendChild(toast);
 
-                // إظهار الرسالة
                 setTimeout(() => {
                     toast.classList.add('show');
                 }, 10);
 
-                // إخفاء الرسالة بعد 3 ثواني
                 setTimeout(() => {
                     toast.classList.remove('show');
                     setTimeout(() => {
