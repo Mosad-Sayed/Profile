@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محرر الملف الشخصي التفاعلي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --primary-light: #4895ef;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --text-color: #2b2d42;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+            --white: #ffffff;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.12);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            animation: fadeIn 0.8s ease;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            right: 0;
+            width: 70px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-color), var(--success-color));
+            border-radius: 2px;
+        }
+
+        .subtitle {
+            color: var(--text-color);
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        .editor-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            justify-content: center;
+            animation: slideUp 0.8s ease;
+        }
+
+        .controls {
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            flex: 1;
+            min-width: 320px;
+            max-width: 450px;
+            transition: var(--transition);
+        }
+
+        .controls:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-5px);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-light);
+            transition: var(--transition);
+        }
+
+        input[type="text"],
+        input[type="file"] {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border: 2px solid var(--medium-gray);
+            border-radius: 10px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: var(--light-gray);
+        }
+
+        input[type="text"]:focus,
+        input[type="file"]:focus {
+            border-color: var(--primary-light);
+            outline: none;
+            background-color: var(--white);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .file-upload-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .file-upload-btn:hover {
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .btn-download {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--success-color), #4cc9f0);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: var(--transition);
+            margin-top: 25px;
+            box-shadow: 0 4px 15px rgba(76, 201, 240, 0.3);
+        }
+
+        .btn-download:hover {
+            background: linear-gradient(135deg, #3aa8d8, var(--success-color));
+            box-shadow: 0 6px 20px rgba(76, 201, 240, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .preview {
+            flex: 1;
+            min-width: 320px;
+            max-width: 540px;
+            position: relative;
+        }
+
+        #canvasWrapper {
+            position: relative;
+            display: inline-block;
+            box-shadow: var(--shadow);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        #canvasWrapper:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-5px);
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            background-color: var(--white);
+        }
+
+        .drag-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: var(--white);
+            font-size: 0.95rem;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 0 30px;
+            backdrop-filter: blur(5px);
+            animation: pulse 2s infinite;
+        }
+
+        .drag-hint i {
+            margin-left: 8px;
+        }
+
+        .loading {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 10;
+            border-radius: 15px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--medium-gray);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.03);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .editor-container {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .controls,
+            .preview {
+                max-width: 100%;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+
+            header {
+                margin-bottom: 30px;
+            }
+
+            .controls {
+                padding: 20px;
+            }
+
+            .drag-hint {
+                font-size: 0.8rem;
+                margin: 0 15px;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-user-edit"></i> محرر الملف الشخصي</h1>
+            <p class="subtitle">صمم صورتك الشخصية باحترافية وأضف معلوماتك بسهولة</p>
+        </header>
+
+        <div class="editor-container">
+            <div class="controls">
+                <div class="form-group">
+                    <label for="uploadImage"><i class="fas fa-camera"></i> صورة الملف الشخصي</label>
+                    <div class="file-upload">
+                        <button class="file-upload-btn">
+                            <i class="fas fa-cloud-upload-alt"></i> اختر صورة
+                            <input type="file" id="uploadImage" accept="image/*">
+                        </button>
+                    </div>
+                    <small id="fileHelp" class="text-muted"
+                        style="display: block; margin-top: 8px; color: #666; font-size: 0.9rem;">يفضل استخدام صورة مربعة
+                        لنتيجة أفضل</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="nameInput"><i class="fas fa-user-tag"></i> الاسم الكامل</label>
+                    <div class="input-icon">
+                        <i class="fas fa-pen"></i>
+                        <input type="text" id="nameInput" placeholder="أدخل اسمك هنا">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="idInput"><i class="fas fa-id-badge"></i> رقم التعريف</label>
+                    <div class="input-icon">
+                        <i class="fas fa-hashtag"></i>
+                        <input type="text" id="idInput" placeholder="أدخل رقم ID هنا">
+                    </div>
+                </div>
+
+                <button class="btn-download" id="downloadBtn">
+                    <i class="fas fa-file-download"></i> تحميل الصورة
+                </button>
+            </div>
+
+            <div class="preview">
+                <div id="canvasWrapper">
+                    <div class="loading" id="loadingIndicator">
+                        <div class="spinner"></div>
+                        <div class="loading-text">جاري تحميل الصورة...</div>
+                    </div>
+                    <canvas id="profileCanvas" width="540" height="1154"></canvas>
+                    <div class="drag-hint">
+                        <i class="fas fa-arrows-alt"></i> اسحب العناصر لتغيير موقعها
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const canvas = document.getElementById('profileCanvas');
+            const ctx = canvas.getContext('2d');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const downloadBtn = document.getElementById('downloadBtn');
+
+            // تحميل صورة الخلفية
+            const bgImage = new Image();
+            bgImage.src = 'profile 1 (frame.png';
+
+            let profileImage = new Image();
+            let profilePos = { x: 270, y: 200, radius: 80 };
+            let namePos = { x: 270, y: 320 };
+            let idPos = { x: 270, y: 380 };
+
+            let dragging = false;
+            let dragTarget = null;
+            let originalPos = {};
+
+            // دالة لرسم العناصر على Canvas
+            function drawCanvas() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // رسم الخلفية
+                ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+
+                // رسم الصورة الشخصية بشكل دائري
+                if (profileImage.src && profileImage.complete) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(profilePos.x, profilePos.y, profilePos.radius, 0, Math.PI * 2);
+                    ctx.closePath();
+                    ctx.clip();
+                    ctx.drawImage(profileImage, profilePos.x - profilePos.radius, profilePos.y - profilePos.radius,
+                        profilePos.radius * 2, profilePos.radius * 2);
+                    ctx.restore();
+
+                    // إضافة ظل للصورة
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(profilePos.x, profilePos.y, profilePos.radius + 2, 0, Math.PI * 2);
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                    ctx.shadowBlur = 10;
+                    ctx.shadowOffsetY = 5;
+                    ctx.fillStyle = 'transparent';
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                // رسم الاسم
+                const name = document.getElementById('nameInput').value;
+                if (name) {
+                    ctx.fillStyle = '#2b2d42';
+                    ctx.font = 'bold 28px Tajawal';
+                    ctx.textAlign = 'center';
+
+                    // إضافة ظل للنص
+                    ctx.save();
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+                    ctx.shadowBlur = 4;
+                    ctx.shadowOffsetY = 3;
+                    ctx.fillText(name, namePos.x, namePos.y);
+                    ctx.restore();
+                }
+
+                // رسم رقم ID
+                const id = document.getElementById('idInput').value;
+                if (id) {
+                    ctx.fillStyle = '#2b2d42';
+                    ctx.font = '24px Tajawal';
+                    ctx.textAlign = 'center';
+
+                    // إضافة ظل للنص
+                    ctx.save();
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+                    ctx.shadowBlur = 3;
+                    ctx.shadowOffsetY = 2;
+                    ctx.fillText("ID: " + id, idPos.x, idPos.y);
+                    ctx.restore();
+                }
+            }
+
+            // عند تحميل صورة الخلفية
+            bgImage.onload = function () {
+                // تعديل حجم Canvas ليناسب حجم الصورة مع الحفاظ على النسبة
+                const aspectRatio = bgImage.height / bgImage.width;
+                canvas.height = canvas.width * aspectRatio;
+                drawCanvas();
+
+                // إخفاء مؤشر التحميل
+                loadingIndicator.classList.remove('active');
+            };
+
+            // عند اختيار صورة جديدة
+            document.getElementById('uploadImage').addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // عرض مؤشر التحميل
+                    loadingIndicator.classList.add('active');
+
+                    const reader = new FileReader();
+                    reader.onload = function (evt) {
+                        profileImage.src = evt.target.result;
+                        profileImage.onload = function () {
+                            // ضبط حجم الصورة الشخصية بناءً على حجم Canvas
+                            profilePos.radius = canvas.width * 0.15;
+                            drawCanvas();
+
+                            // إخفاء مؤشر التحميل
+                            loadingIndicator.classList.remove('active');
+
+                            // عرض رسالة نجاح
+                            showToast('تم تحميل الصورة بنجاح', 'success');
+                        };
+                        profileImage.onerror = function () {
+                            loadingIndicator.classList.remove('active');
+                            showToast('حدث خطأ في تحميل الصورة', 'error');
+                        };
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // عند تغيير النص
+            document.getElementById('nameInput').addEventListener('input', drawCanvas);
+            document.getElementById('idInput').addEventListener('input', drawCanvas);
+
+            // تحميل الصورة النهائية
+            downloadBtn.addEventListener('click', function () {
+                if (!profileImage.src) {
+                    showToast('الرجاء تحميل صورة شخصية أولاً', 'warning');
+                    return;
+                }
+
+                // عرض مؤشر التحميل
+                const originalText = downloadBtn.innerHTML;
+                downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
+                downloadBtn.disabled = true;
+
+                setTimeout(function () {
+                    const link = document.createElement('a');
+                    const name = document.getElementById('nameInput').value || 'الملف_الشخصي';
+                    link.download = name.replace(/\s+/g, '_') + '.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+
+                    // استعادة حالة الزر
+                    downloadBtn.innerHTML = originalText;
+                    downloadBtn.disabled = false;
+
+                    // عرض رسالة نجاح
+                    showToast('تم تحميل الملف بنجاح', 'success');
+                }, 500);
+            });
+
+            // وظائف السحب والإفلات
+            canvas.addEventListener('mousedown', function (e) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const mouseX = (e.clientX - rect.left) * scaleX;
+                const mouseY = (e.clientY - rect.top) * scaleY;
+
+                // التحقق من النقر على الصورة الشخصية
+                const dx = mouseX - profilePos.x;
+                const dy = mouseY - profilePos.y;
+                if (dx * dx + dy * dy < profilePos.radius * profilePos.radius) {
+                    dragging = true;
+                    dragTarget = 'profile';
+                    originalPos = { ...profilePos };
+                    canvas.style.cursor = 'grabbing';
+                    return;
+                }
+
+                // التحقق من النقر على الاسم
+                const name = document.getElementById('nameInput').value;
+                if (name) {
+                    ctx.font = 'bold 28px Tajawal';
+                    const metrics = ctx.measureText(name);
+                    const textHeight = 30; // تقدير ارتفاع النص
+
+                    if (Math.abs(mouseX - namePos.x) < metrics.width / 2 &&
+                        Math.abs(mouseY - namePos.y) < textHeight / 2) {
+                        dragging = true;
+                        dragTarget = 'name';
+                        originalPos = { ...namePos };
+                        canvas.style.cursor = 'grabbing';
+                        return;
+                    }
+                }
+
+                // التحقق من النقر على رقم ID
+                const id = document.getElementById('idInput').value;
+                if (id) {
+                    ctx.font = '24px Tajawal';
+                    const idText = "ID: " + id;
+                    const metrics = ctx.measureText(idText);
+                    const textHeight = 25; // تقدير ارتفاع النص
+
+                    if (Math.abs(mouseX - idPos.x) < metrics.width / 2 &&
+                        Math.abs(mouseY - idPos.y) < textHeight / 2) {
+                        dragging = true;
+                        dragTarget = 'id';
+                        originalPos = { ...idPos };
+                        canvas.style.cursor = 'grabbing';
+                        return;
+                    }
+                }
+            });
+
+            canvas.addEventListener('mouseup', function () {
+                if (dragging) {
+                    dragging = false;
+                    canvas.style.cursor = '';
+
+                    // إظهار رسالة تأكيد الحركة
+                    if (dragTarget === 'profile') {
+                        showToast('تم تغيير موقع الصورة', 'info');
+                    } else if (dragTarget === 'name') {
+                        showToast('تم تغيير موقع الاسم', 'info');
+                    } else if (dragTarget === 'id') {
+                        showToast('تم تغيير موقع الرقم التعريفي', 'info');
+                    }
+                }
+            });
+
+            canvas.addEventListener('mouseleave', function () {
+                if (dragging) {
+                    // إعادة العنصر إلى موقعه الأصلي إذا تم سحبه خارج Canvas
+                    if (dragTarget === 'profile') {
+                        profilePos = { ...originalPos };
+                    } else if (dragTarget === 'name') {
+                        namePos = { ...originalPos };
+                    } else if (dragTarget === 'id') {
+                        idPos = { ...originalPos };
+                    }
+                    drawCanvas();
+                    dragging = false;
+                    canvas.style.cursor = '';
+                }
+            });
+
+            canvas.addEventListener('mousemove', function (e) {
+                if (!dragging) return;
+
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const x = (e.clientX - rect.left) * scaleX;
+                const y = (e.clientY - rect.top) * scaleY;
+
+                if (dragTarget === 'profile') {
+                    profilePos.x = x;
+                    profilePos.y = y;
+                } else if (dragTarget === 'name') {
+                    namePos.x = x;
+                    namePos.y = y;
+                } else if (dragTarget === 'id') {
+                    idPos.x = x;
+                    idPos.y = y;
+                }
+                drawCanvas();
+            });
+
+            // جعل Canvas متجاوباً مع تغيير حجم الشاشة
+            function handleResize() {
+                const canvasWrapper = document.getElementById('canvasWrapper');
+                if (bgImage.complete) {
+                    const aspectRatio = bgImage.height / bgImage.width;
+                    canvas.width = canvasWrapper.offsetWidth;
+                    canvas.height = canvas.width * aspectRatio;
+
+                    // ضبط أحجام العناصر بناءً على الحجم الجديد
+                    profilePos.radius = canvas.width * 0.15;
+                    profilePos.x = canvas.width / 2;
+                    namePos.x = canvas.width / 2;
+                    idPos.x = canvas.width / 2;
+
+                    drawCanvas();
+                }
+            }
+
+            window.addEventListener('resize', handleResize);
+
+            // دالة لعرض الرسائل التنبيهية
+            function showToast(message, type) {
+                // إزالة أي رسائل سابقة
+                const oldToast = document.querySelector('.toast-message');
+                if (oldToast) oldToast.remove();
+
+                const toast = document.createElement('div');
+                toast.className = `toast-message toast-${type}`;
+                toast.innerHTML = `
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' :
+                        type === 'error' ? 'fa-times-circle' :
+                            type === 'warning' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                    <span>${message}</span>
+                `;
+
+                document.body.appendChild(toast);
+
+                // إظهار الرسالة
+                setTimeout(() => {
+                    toast.classList.add('show');
+                }, 10);
+
+                // إخفاء الرسالة بعد 3 ثواني
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 300);
+                }, 3000);
+            }
+
+            // إضافة أنماط الرسائل التنبيهية
+            const toastStyles = document.createElement('style');
+            toastStyles.innerHTML = `
+                .toast-message {
+                    position: fixed;
+                    bottom: 30px;
+                    right: 30px;
+                    background-color: #fff;
+                    padding: 15px 25px;
+                    border-radius: 8px;
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                    z-index: 1000;
+                    opacity: 0;
+                    transform: translateY(20px);
+                    transition: all 0.3s ease;
+                    font-family: 'Tajawal', sans-serif;
+                }
+                
+                .toast-message.show {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                
+                .toast-message i {
+                    font-size: 1.2rem;
+                }
+                
+                .toast-success {
+                    border-right: 4px solid #4cc9f0;
+                    color: #2b2d42;
+                }
+                
+                .toast-success i {
+                    color: #4cc9f0;
+                }
+                
+                .toast-error {
+                    border-right: 4px solid #f72585;
+                    color: #2b2d42;
+                }
+                
+                .toast-error i {
+                    color: #f72585;
+                }
+                
+                .toast-warning {
+                    border-right: 4px solid #ff9e00;
+                    color: #2b2d42;
+                }
+                
+                .toast-warning i {
+                    color: #ff9e00;
+                }
+                
+                .toast-info {
+                    border-right: 4px solid #4361ee;
+                    color: #2b2d42;
+                }
+                
+                .toast-info i {
+                    color: #4361ee;
+                }
+                
+                @media (max-width: 768px) {
+                    .toast-message {
+                        bottom: 20px;
+                        right: 20px;
+                        left: 20px;
+                        max-width: calc(100% - 40px);
+                    }
+                }
+            `;
+            document.head.appendChild(toastStyles);
+        });
+    </script>
+</body>
+
+</html>
